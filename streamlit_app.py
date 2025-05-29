@@ -53,9 +53,9 @@ if st.button("🧭 Plan My Day"):
     if not location or not goal:
         st.warning("Please enter both your location and travel goal.")
     else:
-        st.subheader("🧠 Detecting Your Intent...")
+        #st.subheader("🧠 Detecting Your Intent...")
         intent = cached_classify_intent(goal)
-        st.success(f"Intent Detected: **{intent}**")
+        #st.success(f"Intent Detected: **{intent}**")
 
         # Build context (string)
         context = cached_build_context(location, intent, preferences)
