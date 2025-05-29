@@ -3,8 +3,6 @@ from chains.intent_classifier import classify_intent
 from chains.context_builder import build_context
 from chains.place_fetcher import fetch_places
 from chains.response_generator import generate_response
-from chains.image_generator import generate_image
-
 
 st.set_page_config(page_title="Travel’logue", page_icon="🌍", layout="centered")
 st.title("🌍 Travel’logue – Your Smart Travel Companion")
@@ -19,8 +17,12 @@ def cached_classify_intent(goal):
     return classify_intent(goal)
 
 @st.cache_data(show_spinner=False)
-def cached_build_context(location, intent):
-    return build_context(location, intent)
+def cached_build_context(location, intent, preferences):
+    context = build_context(location, intent)
+    if preferences:
+        joined = ", ".join([p.lower() for p in preferences])
+        context += f"\nThe user also prefers: {joined}."
+    return context
 
 @st.cache_data(show_spinner=False)
 def cached_fetch_places(location, intent):
@@ -51,14 +53,11 @@ if st.button("🧭 Plan My Day"):
     if not location or not goal:
         st.warning("Please enter both your location and travel goal.")
     else:
+        # Detect intent
         intent = cached_classify_intent(goal)
 
-        # Build context dictionary
-        context = cached_build_context(location, intent)
-
-        # Add preferences to the context dict
-        if preferences:
-            context["preferences"] = ", ".join([p.lower() for p in preferences])
+        # Build context (string)
+        context = cached_build_context(location, intent, preferences)
 
         # Fetch relevant places
         places = cached_fetch_places(location, intent)
@@ -72,20 +71,9 @@ if st.button("🧭 Plan My Day"):
                 response = generate_response(context, places, location, goal, intent, preferences)
                 st.markdown("### 🗺️ Your Travel Plan:")
                 st.markdown(response)
-                
-                # 🖼️ Image generation with Replicate
-                image_prompt = f"A beautiful scenic view of {location}, perfect for {intent.lower()} activities"
-                try:
-                    image_url = generate_image(image_prompt)
-                    st.image(image_url, caption="🖼️ Travel Postcard (AI-Generated)")
-                except Exception as e:
-                    st.warning("Could not generate image.")
-                    st.code(str(e))
-                    
             except Exception as e:
                 st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
                 st.code(str(e))
-
 
             # Save to history
             st.session_state.history.append({
