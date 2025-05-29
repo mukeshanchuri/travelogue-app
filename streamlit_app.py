@@ -68,12 +68,13 @@ if st.button("🧭 Plan My Day"):
         else:
             st.success(f"📍 Found {len(places)} places for you!")
 
-            # Generate travel plan
-            response = generate_response(context, places, location, goal, intent, preferences)
-
-            # Show plan
-            st.markdown("### 🗺️ Your Travel Plan:")
-            st.markdown(response)
+            try:
+                response = generate_response(context, places, location, goal, intent, preferences)
+                st.markdown("### 🗺️ Your Travel Plan:")
+                st.markdown(response)
+                except Exception as e:
+                    st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
+                    st.code(str(e))
 
             # Save to history
             st.session_state.history.append({
