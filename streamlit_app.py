@@ -11,6 +11,23 @@ st.title("🌍 Travel’logue – Your Smart Travel Companion")
 if "history" not in st.session_state:
     st.session_state.history = []
 
+# Cached versions of key functions
+@st.cache_data(show_spinner=False)
+def cached_classify_intent(goal):
+    return classify_intent(goal)
+
+@st.cache_data(show_spinner=False)
+def cached_build_context(location, intent, preferences):
+    context = build_context(location, intent)
+    if preferences:
+        joined = ", ".join([p.lower() for p in preferences])
+        context += f"\nThe user also prefers: {joined}."
+    return context
+
+@st.cache_data(show_spinner=False)
+def cached_fetch_places(location, intent):
+    return fetch_places(location, intent)
+
 # Step 1: User inputs
 location = st.text_input("📍 Where are you right now?")
 goal = st.text_input(
@@ -37,17 +54,14 @@ if st.button("🧭 Plan My Day"):
         st.warning("Please enter both your location and travel goal.")
     else:
         st.subheader("🧠 Detecting Your Intent...")
-        intent = classify_intent(goal)
+        intent = cached_classify_intent(goal)
         st.success(f"Intent Detected: **{intent}**")
 
         # Build context (string)
-        context = build_context(location, intent)
-        if preferences:
-            joined = ", ".join([p.lower() for p in preferences])
-            context += f"\nThe user also prefers: {joined}."
+        context = cached_build_context(location, intent, preferences)
 
         # Fetch relevant places
-        places = fetch_places(location, intent)
+        places = cached_fetch_places(location, intent)
 
         if not places:
             st.error("❌ No places found. Try adjusting your input.")
@@ -55,7 +69,7 @@ if st.button("🧭 Plan My Day"):
             st.success(f"📍 Found {len(places)} places for you!")
 
             # Generate travel plan
-            response = generate_response(context, places)
+            response = generate_response(context, places, location, goal, intent, preferences)
 
             # Show plan
             st.markdown("### 🗺️ Your Travel Plan:")
@@ -81,8 +95,5 @@ if st.session_state.history:
                 st.markdown(f"**Preferences:** {prefs}")
             st.markdown(entry['response'])
 
-
-
-
 st.markdown("---")
-st.markdown("© 2025 Mukesh. All rights reserved.", unsafe_allow_html=True)
+st.markdown("© 2025 Mukesh Anchuri. All rights reserved.", unsafe_allow_html=True)
