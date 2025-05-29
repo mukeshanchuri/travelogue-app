@@ -4,40 +4,48 @@ from langchain_core.runnables import RunnableSequence
 from dotenv import load_dotenv
 import os
 
-# Debug marker to ensure correct file is loaded
+# Debug marker
 print(">>> Running UPDATED intent_classifier.py <<<")
 
-# Load environment variables from .env
+# Load environment variables
 load_dotenv()
 
-# Initialize Gemini model from Google
+# Check for missing API key early
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("❌ GOOGLE_API_KEY is missing in your .env file!")
+
+# Initialize Gemini model
 llm = ChatGoogleGenerativeAI(
     model="models/gemini-1.5-pro",
     temperature=0.5,
-    google_api_key=os.getenv("GOOGLE_API_KEY")
+    google_api_key=GOOGLE_API_KEY
 )
 
-# Load prompt template text from file
+# Load prompt template
 with open("prompts/intent_prompt.txt", "r", encoding="utf-8") as f:
     template = f.read()
 
-# Build a prompt template that expects an 'input' variable
+# Prompt template expects one input variable: `input`
 intent_prompt = PromptTemplate(
     input_variables=["input"],
     template=template
 )
 
-# Build chain using the modern LangChain pipe syntax
+# Create runnable chain
 intent_chain = intent_prompt | llm
 
 def classify_intent(user_input: str) -> str:
     """
-    Classifies the user's travel intent and strips any 'intent:' label.
+    Classifies the user's travel intent and strips any prefix like 'intent:'.
     """
-    # Invoke the prompt-chain with the user's input
-    result = intent_chain.invoke({"input": user_input})
+    try:
+        result = intent_chain.invoke({"input": user_input})
+    except Exception as e:
+        print("❌ Error invoking LLM:", e)
+        return "unknown"
 
-    # Handle different response formats from the LLM
+    # Handle different LLM output structures
     if isinstance(result, dict) and "content" in result:
         raw = result["content"]
     elif hasattr(result, "content"):
@@ -45,6 +53,6 @@ def classify_intent(user_input: str) -> str:
     else:
         raw = str(result)
 
-    # Clean the output by removing the label and trimming whitespace
+    # Clean and standardize output
     cleaned = raw.lower().replace("intent:", "").strip()
     return cleaned
