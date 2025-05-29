@@ -17,12 +17,8 @@ def cached_classify_intent(goal):
     return classify_intent(goal)
 
 @st.cache_data(show_spinner=False)
-def cached_build_context(location, intent, preferences):
-    context = build_context(location, intent)
-    if preferences:
-        joined = ", ".join([p.lower() for p in preferences])
-        context += f"\nThe user also prefers: {joined}."
-    return context
+def cached_build_context(location, intent):
+    return build_context(location, intent)
 
 @st.cache_data(show_spinner=False)
 def cached_fetch_places(location, intent):
@@ -53,12 +49,14 @@ if st.button("🧭 Plan My Day"):
     if not location or not goal:
         st.warning("Please enter both your location and travel goal.")
     else:
-        #st.subheader("🧠 Detecting Your Intent...")
         intent = cached_classify_intent(goal)
-        #st.success(f"Intent Detected: **{intent}**")
 
-        # Build context (string)
-        context = cached_build_context(location, intent, preferences)
+        # Build context dictionary
+        context = cached_build_context(location, intent)
+
+        # Add preferences to the context dict
+        if preferences:
+            context["preferences"] = ", ".join([p.lower() for p in preferences])
 
         # Fetch relevant places
         places = cached_fetch_places(location, intent)
@@ -73,8 +71,9 @@ if st.button("🧭 Plan My Day"):
                 st.markdown("### 🗺️ Your Travel Plan:")
                 st.markdown(response)
             except Exception as e:
-                    st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
-                    st.code(str(e))
+                st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
+                st.code(str(e))
+
             # Save to history
             st.session_state.history.append({
                 "location": location,
