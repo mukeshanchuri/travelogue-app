@@ -53,13 +53,8 @@ if st.button("🧭 Plan My Day"):
     if not location or not goal:
         st.warning("Please enter both your location and travel goal.")
     else:
-        # Detect intent
         intent = cached_classify_intent(goal)
-
-        # Build context (string)
-        context = cached_build_context(location, intent, preferences)
-
-        # Fetch relevant places
+        context_dict = cached_build_context(location, intent, preferences)
         places = cached_fetch_places(location, intent)
 
         if not places:
@@ -67,15 +62,23 @@ if st.button("🧭 Plan My Day"):
         else:
             st.success(f"📍 Found {len(places)} places for you!")
 
+            # Build context string for the LLM
+            context_str = (
+                f"The user is in {context_dict['location']}, and their intent is: {context_dict['intent']}.\n"
+                f"The current local time in {context_dict['location']} is {context_dict['time']}.\n"
+                f"The weather is {context_dict['weather']}."
+            )
+            if context_dict.get("preferences"):
+                context_str += f"\nThe user also prefers: {context_dict['preferences']}."
+
             try:
-                response = generate_response(context, places, location, goal, intent, preferences)
+                response = generate_response(context_str, places, location, goal, intent, preferences)
                 st.markdown("### 🗺️ Your Travel Plan:")
                 st.markdown(response)
             except Exception as e:
                 st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
                 st.code(str(e))
 
-            # Save to history
             st.session_state.history.append({
                 "location": location,
                 "goal": goal,
