@@ -3,6 +3,8 @@ from chains.intent_classifier import classify_intent
 from chains.context_builder import build_context
 from chains.place_fetcher import fetch_places
 from chains.response_generator import generate_response
+from chains.image_generator import generate_image
+
 
 st.set_page_config(page_title="Travel’logue", page_icon="🌍", layout="centered")
 st.title("🌍 Travel’logue – Your Smart Travel Companion")
@@ -70,9 +72,20 @@ if st.button("🧭 Plan My Day"):
                 response = generate_response(context, places, location, goal, intent, preferences)
                 st.markdown("### 🗺️ Your Travel Plan:")
                 st.markdown(response)
+                
+                # 🖼️ Image generation with Replicate
+                image_prompt = f"A beautiful scenic view of {location}, perfect for {intent.lower()} activities"
+                try:
+                    image_url = generate_image(image_prompt)
+                    st.image(image_url, caption="🖼️ Travel Postcard (AI-Generated)")
+                except Exception as e:
+                    st.warning("Could not generate image.")
+                    st.code(str(e))
+                    
             except Exception as e:
                 st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
                 st.code(str(e))
+
 
             # Save to history
             st.session_state.history.append({
