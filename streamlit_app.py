@@ -72,7 +72,7 @@ if st.button("🧭 Plan My Day"):
                 response = generate_response(context, places, location, goal, intent, preferences)
                 st.markdown("### 🗺️ Your Travel Plan:")
                 st.markdown(response)
-                except Exception as e:
+            except Exception as e:
                     st.error("⚠️ Oops! Something went wrong while generating your travel plan.")
                     st.code(str(e))
             # Save to history
