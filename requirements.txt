@@ -1,4 +1,5 @@
 streamlit
+replicate
 langchain-google-genai
 openai
 python-dotenv
