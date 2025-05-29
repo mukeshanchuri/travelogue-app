@@ -1,30 +1,16 @@
 from datetime import datetime
+from geopy.geocoders import Nominatim
+from timezonefinder import TimezoneFinder
+import pytz
+
 from utils.weather_api import get_weather_forecast
 from utils.memory_store import get_user_preferences
 
-def build_context(location: str, intent: str) -> dict:
-    """
-    Gathers time, weather, and user preferences into a context dict.
-    """
-    current_time = datetime.now().strftime("%I:%M %p")
-    weather      = get_weather_forecast(location)
-    memory       = get_user_preferences()
-
-    return {
-        "location": location,
-        "intent":   intent,
-        "time":     current_time,
-        "weather":  weather,
-        "memory":   memory
-    }
-
-
-from geopy.geocoders import Nominatim
-from timezonefinder import TimezoneFinder
-from datetime import datetime
-import pytz
 
 def get_local_time(location_name: str) -> str:
+    """
+    Converts location name into local time using geolocation and timezone APIs.
+    """
     geolocator = Nominatim(user_agent="travelogue-app")
     location = geolocator.geocode(location_name)
 
@@ -41,12 +27,19 @@ def get_local_time(location_name: str) -> str:
     
     return "local time unavailable"
 
-def build_context(location: str, intent: str) -> str:
-    time_info = get_local_time(location)
 
-    context = (
-        f"The user is in {location}, and their intent is: {intent.lower()}.\n"
-        f"The current local time in {location} is {time_info}."
-    )
-    
-    return context
+def build_context(location: str, intent: str) -> dict:
+    """
+    Gathers time, weather, and user preferences into a structured context dictionary.
+    """
+    local_time  = get_local_time(location)
+    weather     = get_weather_forecast(location)
+    memory      = get_user_preferences()
+
+    return {
+        "location": location,
+        "intent":   intent,
+        "time":     local_time,
+        "weather":  weather,
+        "memory":   memory
+    }
