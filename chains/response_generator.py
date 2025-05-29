@@ -54,7 +54,7 @@ response_prompt = PromptTemplate(
 response_chain = response_prompt | llm
 
 # Generator function
-def generate_response(context: str, places: list) -> str:
+def generate_response(context: str, places: list, location: str, goal: str, intent: str, preferences: list) -> str:
     # Parse JSON if context looks like JSON
     if isinstance(context, str):
         try:
