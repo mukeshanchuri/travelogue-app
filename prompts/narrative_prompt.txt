@@ -10,3 +10,23 @@ Using a friendly, {tone} tone:
 - Write a travel guide paragraph that paints a picture of what the user might experience
 - Then give bullet points for each place including 1 highlight (like food, photo spot, or vibe)
 - Be personal, like you’re talking to a fellow traveler.
+
+Example:
+---
+User wants help with: chill  
+Weather: Sunny and breezy  
+Time: Late afternoon  
+Places:
+1. Seaside Café – A cozy café overlooking the ocean
+2. Cloud Hill Park – Grassy hilltop with panoramic views and benches
+3. Misty Pines Spa – Quiet day spa with hot tubs and herbal tea
+
+Response:
+Imagine yourself wrapped in a light breeze, the warmth of the sun on your skin, and nowhere urgent to be. It’s the perfect afternoon to slow down and savor the beauty around you. Start at the Seaside Café where the ocean hums gently in the background — grab a cool drink and lose yourself in a book. From there, stroll up to Cloud Hill Park, where the city shrinks beneath your feet and time feels slower. And if you're still in the mood for peace, Misty Pines Spa awaits with steaming hot tubs and calming tea to soothe your soul.
+
+• **Seaside Café** – Best for ocean views and iced lavender lattes  
+• **Cloud Hill Park** – Don’t miss the photo spot at the top bench  
+• **Misty Pines Spa** – The herbal soak is a perfect end to your unwind day
+---
+
+Now it's your turn:

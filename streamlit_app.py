@@ -21,7 +21,7 @@ def cached_build_context(location, intent, preferences):
     context = build_context(location, intent)
     if preferences:
         joined = ", ".join([p.lower() for p in preferences])
-        context += f"\nThe user also prefers: {joined}."
+        context["preferences"] = joined
     return context
 
 @st.cache_data(show_spinner=False)
